@@ -44,12 +44,9 @@ def extract_frames(file_path):
         height = int(frame.shape[0] * downscale_factor)
         
         resized = cv.resize(frame, (width, height), interpolation=cv.INTER_AREA)
-        gray = cv.cvtColor(resized, cv.COLOR_BGR2GRAY)
+        gray_blurred = cv.GaussianBlur((cv.cvtColor(resized, cv.COLOR_BGR2GRAY)), (5,5), 0) # experiment with blur
 
-        print(frame.shape)
-        print(gray.shape)
-
-        frames.append(gray)
+        frames.append(gray_blurred)
 
     cap.release()
     return frames

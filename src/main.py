@@ -1,15 +1,24 @@
-from video_processing import download_video, extract_frames, keep_section_frames
-from piano_analysis import play_frames, crop_to_piano
+import video_processing as vp
+import piano_analysis as pa
 import numpy as np
 
-url = "https://www.youtube.com/watch?v=D-X1CwyQLYo"
-start = 1
-end = 114
+song = 'la la'
+url = ''
+start = 0
+end = 0
 
-output_path, duration = download_video(url)
-frames = extract_frames(output_path)
-frames = keep_section_frames(frames, start, end, duration)
+if song == 'la la':
+    url = "https://www.youtube.com/watch?v=D-X1CwyQLYo"
+    start = 1
+    end = 114
+if song == 'howl':
+    url = "https://www.youtube.com/watch?v=QCNVEsk3pcw"
+    start = 3
+    end = 170
 
-frames = crop_to_piano(frames)
+output_path, duration = vp.download_video(url)
+frames = vp.extract_frames(output_path)
+frames = vp.keep_section_frames(frames, start, end, duration)
+frames = pa.crop_to_piano(frames)
 
-play_frames(frames)
+pa.locate_keys(frames)
