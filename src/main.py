@@ -21,4 +21,4 @@ frames = vp.extract_frames(output_path)
 frames = vp.keep_section_frames(frames, start, end, duration)
 frames = pa.crop_to_piano(frames)
 
-pa.locate_keys(frames)
+pa.locate_keys(frames[0])

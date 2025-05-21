@@ -40,24 +40,17 @@ def crop_to_piano(frames):
     
     return frames
 
-def locate_keys(frames):
-    frame = frames[0]
-    boundaries = find_key_boundaries(frame)
-    
+def locate_keys(frame):
     height = frame.shape[0]
     white_top = (height//4) * 3
     white_bottom = (height - 10)
-    
-    key_width_3rd = int(boundaries[0] * 1/3)
-    
-    key_rois = [(0 + key_width_3rd, boundaries[0] - key_width_3rd)] # x1, x2
-    for i in range(1, len(boundaries)):
-        key_width_3rd = int((boundaries[i] - boundaries[i - 1]) * 1/3)
-        key_rois.append((boundaries[i - 1] + key_width_3rd, boundaries[i] - key_width_3rd))
-    key_rois.append((boundaries[len(boundaries) - 1] + key_width_3rd, frame.shape[1] - key_width_3rd))
 
-    debug_frame = frames[0]
-    for roi in key_rois:
+    boundaries = find_key_boundaries(frame)
+    white_key_rois = find_white_keys(frame, boundaries)
+    black_key_rois = find_black_keys(frame)
+
+    debug_frame = frame
+    for roi in white_key_rois:
         cv.line(debug_frame, (roi[0], white_top), (roi[0], white_bottom), (0, 0, 255), 1)
         cv.line(debug_frame, (roi[1], white_top), (roi[1], white_bottom), (0, 0, 255), 1)
     cv.imshow("Key Boundaries", debug_frame)
@@ -87,3 +80,43 @@ def find_key_boundaries(frame):
             boundaries.append(i)
 
     return boundaries
+
+def find_white_keys(frame, boundaries):    
+    key_width_3rd = int(boundaries[0] * 1/3)
+    
+    white_key_rois = [(0 + key_width_3rd, boundaries[0] - key_width_3rd)] # x1, x2
+    for i in range(1, len(boundaries)):
+        key_width_3rd = int((boundaries[i] - boundaries[i - 1]) * 1/3)
+        white_key_rois.append((boundaries[i - 1] + key_width_3rd, boundaries[i] - key_width_3rd))
+    white_key_rois.append((boundaries[len(boundaries) - 1] + key_width_3rd, frame.shape[1] - key_width_3rd))
+
+    return white_key_rois
+
+def find_black_keys(frame):
+    height = frame.shape[0]
+    upper_half = frame[height // 10 : height // 2] # upper portion cropped to avoid black bar in some videos
+    inv = 255 - upper_half
+    _, thresh = cv.threshold(inv, 200, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+    contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    black_key_rois = []
+
+    cv.imshow("d", thresh)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
+    for cnt in contours:
+        x, y, w, h = cv.boundingRect(cnt)
+        if 5 < w < 100:
+            black_key_rois.append((x + int(w // 4), x + (int(w // 4) * 3), (height // 10) + y + int(h // 4), (height // 10) + y + h)) # x1, x2, y1, y2
+
+    debug_frame = frame
+    for roi in black_key_rois:
+        cv.line(debug_frame, (roi[0], roi[2]), (roi[0], roi[3]), (0, 0, 255), 1)
+        cv.line(debug_frame, (roi[1], roi[2]), (roi[1], roi[3]), (0, 0, 255), 1)
+        cv.line(debug_frame, (roi[0], roi[2]), (roi[1], roi[2]), (0, 0, 255), 1)
+        cv.line(debug_frame, (roi[0], roi[3]), (roi[1], roi[3]), (0, 0, 255), 1)
+    cv.imshow("Key Boundaries", debug_frame)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
+
+    return black_key_rois
