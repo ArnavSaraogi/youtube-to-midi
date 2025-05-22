@@ -55,7 +55,9 @@ def locate_keys(frame):
 
     for idx, key in enumerate(key_rois):
         key["index"] = idx
-    
+        x1, x2, y1, y2 = key["roi"]
+        key["intensity"] = cv.mean(frame[y1:y2, x1:x2])[0]
+
     return key_rois
 
 def find_key_boundaries(frame):
@@ -111,3 +113,30 @@ def find_black_keys(frame):
             black_key_rois.append((x + int(w // 4), x + (int(w // 4) * 3), (height // 10) + y + int(h // 4), (height // 10) + y + h)) # x1, x2, y1, y2
 
     return black_key_rois
+
+def make_note_matrix(frames, key_rois):
+    note_matrix = np.zeros((len(frames), len(key_rois)), dtype=np.uint8)
+
+    for i, frame in enumerate(frames):
+        for j, key in enumerate(key_rois):
+            x1, x2, y1, y2 = key['roi']
+            new_intensity = cv.mean(frame[y1:y2, x1:x2])[0]
+            if abs(new_intensity - key['intensity']) > 40:
+                note_matrix[i, j] = 1
+    
+    # play_press_detection(frames, key_rois, note_matrix)
+
+    return note_matrix
+
+def play_press_detection(frames, key_rois, note_matrix):
+    for i, frame in enumerate(frames):
+        color_frame = cv.cvtColor(frame, cv.COLOR_GRAY2BGR)
+        for j, key in enumerate(key_rois):
+            if note_matrix[i, j] == 1:  # key pressed
+                x1, x2, y1, y2 = key['roi']
+                cv.rectangle(color_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # green box
+        cv.imshow("Color frame with boxes", color_frame)
+        if cv.waitKey(30) & 0xFF == ord('q'):
+            break
+    
+    cv.destroyAllWindows()

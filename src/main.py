@@ -9,7 +9,7 @@ end = 0
 
 if song == 'la la':
     url = "https://www.youtube.com/watch?v=D-X1CwyQLYo"
-    start = 1
+    start = 2
     end = 114
 if song == 'howl':
     url = "https://www.youtube.com/watch?v=QCNVEsk3pcw"
@@ -20,5 +20,6 @@ output_path, duration = vp.download_video(url)
 frames = vp.extract_frames(output_path)
 frames = vp.keep_section_frames(frames, start, end, duration)
 frames = pa.crop_to_piano(frames)
+key_rois = pa.locate_keys(frames[0])
 
-pa.locate_keys(frames[0])
+note_matrix = pa.make_note_matrix(frames, key_rois)
