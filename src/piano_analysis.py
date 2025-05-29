@@ -2,15 +2,6 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 
-def play_frames(frames):
-    for i in range(len(frames)):
-        cv.imshow("Live", frames[i])
-        key = cv.waitKey(30)
-        if key == 27:
-            break
-    
-    cv.destroyAllWindows()
-
 def crop_to_piano(frames):
     frame = frames[0]
     height = frame.shape[0]
@@ -58,7 +49,7 @@ def locate_keys(frame):
         x1, x2, y1, y2 = key["roi"]
         key["intensity"] = cv.mean(frame[y1:y2, x1:x2])[0]
 
-    return key_rois
+    return key_rois # {roi: , color: , index: , intensity: }
 
 def find_key_boundaries(frame):
     height = frame.shape[0]
@@ -123,20 +114,5 @@ def make_note_matrix(frames, key_rois):
             new_intensity = cv.mean(frame[y1:y2, x1:x2])[0]
             if abs(new_intensity - key['intensity']) > 40:
                 note_matrix[i, j] = 1
-    
-    # play_press_detection(frames, key_rois, note_matrix)
 
     return note_matrix
-
-def play_press_detection(frames, key_rois, note_matrix):
-    for i, frame in enumerate(frames):
-        color_frame = cv.cvtColor(frame, cv.COLOR_GRAY2BGR)
-        for j, key in enumerate(key_rois):
-            if note_matrix[i, j] == 1:  # key pressed
-                x1, x2, y1, y2 = key['roi']
-                cv.rectangle(color_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # green box
-        cv.imshow("Color frame with boxes", color_frame)
-        if cv.waitKey(30) & 0xFF == ord('q'):
-            break
-    
-    cv.destroyAllWindows()

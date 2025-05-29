@@ -1,5 +1,6 @@
 import video_processing as vp
 import piano_analysis as pa
+import debug as db
 import numpy as np
 
 song = 'la la'
@@ -23,3 +24,5 @@ frames = pa.crop_to_piano(frames)
 key_rois = pa.locate_keys(frames[0])
 
 note_matrix = pa.make_note_matrix(frames, key_rois)
+
+db.play_press_detection(frames, key_rois, note_matrix)

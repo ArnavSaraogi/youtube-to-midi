@@ -59,15 +59,3 @@ def keep_section_frames(frames, start, end, duration):
     start_frame = int(max(0, fps * start))
     end_frame = int(min(len(frames), fps * end))
     return frames[start_frame:end_frame]
-
-def check_order(key_rois):
-    passed = True
-    black_key_idxs = {1, 4, 6, 9, 11}
-    for key in key_rois:
-        if key['index'] % 12 in black_key_idxs:
-            if key['color'] != 'black':
-                passed = False
-        else:
-            if key['color'] != 'white':
-                passed = False
-    print(passed)    
