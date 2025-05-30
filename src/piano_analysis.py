@@ -2,13 +2,12 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 
-def crop_to_piano(frames):
-    frame = frames[0]
-    height = frame.shape[0]
-    bottom_half = frame[height//2:]
+def crop_to_piano(frames, gray_first_frame):
+    height = gray_first_frame.shape[0]
+    bottom_half = gray_first_frame[height//2:]
     edges = cv.Canny(bottom_half, 35, 100)
     
-    lines = cv.HoughLinesP(edges, rho=1, theta=np.pi/180, threshold=100, minLineLength=frame.shape[1] // 2, maxLineGap=20)
+    lines = cv.HoughLinesP(edges, rho=1, theta=np.pi/180, threshold=100, minLineLength=gray_first_frame.shape[1] // 2, maxLineGap=20)
 
     if lines is None:
         print("Cannot find piano")
@@ -29,12 +28,14 @@ def crop_to_piano(frames):
         for i in range(len(frames)):
             frames[i] = frames[i][top_line_y + height//2:]
     
-    return frames
+    gray_first_frame = gray_first_frame[top_line_y + height//2:]
 
-def locate_keys(frame):
-    boundaries = find_key_boundaries(frame)
-    white_key_rois = find_white_keys(frame, boundaries)
-    black_key_rois = find_black_keys(frame)
+    return (gray_first_frame, frames)
+
+def locate_keys(gray_frame, hsv_frame):  
+    boundaries = find_key_boundaries(gray_frame)
+    white_key_rois = find_white_keys(gray_frame, boundaries)
+    black_key_rois = find_black_keys(gray_frame)
 
     key_rois = [
         {"roi": roi, "color": "white"} for roi in white_key_rois
@@ -47,9 +48,13 @@ def locate_keys(frame):
     for idx, key in enumerate(key_rois):
         key["index"] = idx
         x1, x2, y1, y2 = key["roi"]
-        key["intensity"] = cv.mean(frame[y1:y2, x1:x2])[0]
+        roi = hsv_frame[y1:y2, x1:x2]
+        h, s, v, _ = cv.mean(roi)
+        key["hue"] = h
+        key["saturation"] = s
+        key["value"] = v
 
-    return key_rois # {roi: , color: , index: , intensity: }
+    return key_rois # {roi: , color: , index: , hue: , saturation: , value: }
 
 def find_key_boundaries(frame):
     height = frame.shape[0]
@@ -114,5 +119,23 @@ def make_note_matrix(frames, key_rois):
             new_intensity = cv.mean(frame[y1:y2, x1:x2])[0]
             if abs(new_intensity - key['intensity']) > 40:
                 note_matrix[i, j] = 1
+
+    return note_matrix
+
+def make_note_matrix(frames, key_rois, sat_thresh=30, val_thresh=30):
+    note_matrix = np.zeros((len(frames), len(key_rois)), dtype=np.uint8)
+
+    for i, frame in enumerate(frames):
+        for j, key in enumerate(key_rois):
+            x1, x2, y1, y2 = key['roi']
+            roi = frame[y1:y2, x1:x2]
+            h, s, v, _ = cv.mean(roi)
+
+            if key["color"] == "white":
+                if abs(s - key["saturation"]) > sat_thresh:
+                    note_matrix[i, j] = 1
+            else:
+                if abs(v - key["value"]) > val_thresh:
+                    note_matrix[i, j] = 1
 
     return note_matrix

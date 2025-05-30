@@ -14,12 +14,12 @@ def matrix_to_events(note_matrix, fps):
                 start_frame = active_notes.pop(pitch)
                 start_time = start_frame / fps
                 end_time = frame / fps
-                events.append((pitch, start_time, end_time))
+                events.append((pitch + 21, start_time, end_time)) # +21 bc A0 on piano is MIDI #21
     
     for pitch, start_frame in active_notes.items():
         start_time = start_frame / fps
         end_time = len(note_matrix) / fps
-        events.append((pitch, start_time, end_time))
+        events.append((pitch + 21, start_time, end_time))
     
     return events
 

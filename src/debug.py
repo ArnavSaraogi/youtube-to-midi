@@ -23,12 +23,12 @@ def check_key_order(key_rois):
 
 def play_press_detection(frames, key_rois, note_matrix):
     for i, frame in enumerate(frames):
-        color_frame = cv.cvtColor(frame, cv.COLOR_GRAY2BGR)
+        bgr_frame = cv.cvtColor(frame, cv.COLOR_HSV2BGR)
         for j, key in enumerate(key_rois):
             if note_matrix[i, j] == 1:  # key pressed
                 x1, x2, y1, y2 = key['roi']
-                cv.rectangle(color_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # green box
-        cv.imshow("Color frame with boxes", color_frame)
+                cv.rectangle(bgr_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # green box
+        cv.imshow("Color frame with boxes", bgr_frame)
         if cv.waitKey(30) & 0xFF == ord('q'):
             break
     

@@ -26,8 +26,7 @@ def download_video(url):
 
     return (output_path, duration)
 
-def extract_frames(file_path):
-    downscale_factor = 0.5
+def extract_frames(file_path, downscale_factor = 0.5):
     frames = []
     cap = cv.VideoCapture(file_path)
 
@@ -44,9 +43,9 @@ def extract_frames(file_path):
         height = int(frame.shape[0] * downscale_factor)
         
         resized = cv.resize(frame, (width, height), interpolation=cv.INTER_AREA)
-        gray_blurred = cv.GaussianBlur((cv.cvtColor(resized, cv.COLOR_BGR2GRAY)), (5,5), 0) # experiment with blur
+        blurred = cv.GaussianBlur(resized, (5,5), 0) # experiment with blur
 
-        frames.append(gray_blurred)
+        frames.append(blurred)
 
     cap.release()
     return frames
@@ -58,3 +57,9 @@ def keep_section_frames(frames, start, end, fps):
     start_frame = int(max(0, fps * start))
     end_frame = int(min(len(frames), fps * end))
     return frames[start_frame:end_frame]
+
+def to_HSV(frames):
+    for i in range(len(frames)):
+        frames[i] = cv.cvtColor(frames[i], cv.COLOR_BGR2HSV)
+    
+    return frames
