@@ -51,11 +51,10 @@ def extract_frames(file_path):
     cap.release()
     return frames
 
-def keep_section_frames(frames, start, end, duration):
-    if duration == 0:
-        raise ValueError("Duration cannot be zero.")
-    
-    fps = len(frames) / duration
+def get_fps(frames, duration):
+    return (len(frames) / duration)
+
+def keep_section_frames(frames, start, end, fps):
     start_frame = int(max(0, fps * start))
     end_frame = int(min(len(frames), fps * end))
     return frames[start_frame:end_frame]

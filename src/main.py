@@ -1,6 +1,7 @@
-import video_processing as vp
-import piano_analysis as pa
-import debug as db
+import video_processing
+import piano_analysis
+import debug
+import sheet_music
 import numpy as np
 
 song = 'la la'
@@ -17,12 +18,19 @@ if song == 'howl':
     start = 3
     end = 170
 
-output_path, duration = vp.download_video(url)
-frames = vp.extract_frames(output_path)
-frames = vp.keep_section_frames(frames, start, end, duration)
-frames = pa.crop_to_piano(frames)
-key_rois = pa.locate_keys(frames[0])
+# video processing
+output_path, duration = video_processing.download_video(url)
+frames = video_processing.extract_frames(output_path)
+fps = video_processing.get_fps(frames, duration)
+frames = video_processing.keep_section_frames(frames, start, end, fps)
 
-note_matrix = pa.make_note_matrix(frames, key_rois)
+# piano analysis
+frames = piano_analysis.crop_to_piano(frames)
+key_rois = piano_analysis.locate_keys(frames[0])
+note_matrix = piano_analysis.make_note_matrix(frames, key_rois)
 
-db.play_press_detection(frames, key_rois, note_matrix)
+# sheet music engraving
+events = sheet_music.matrix_to_events(note_matrix, fps)
+sheet_music.generate_midi(events)
+
+debug.play_press_detection(frames, key_rois, note_matrix)
