@@ -1,8 +1,10 @@
+import video_processing
+import debug
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 
-def crop_to_piano(frames, gray_first_frame):
+def crop_to_piano(gray_first_frame):
     height = gray_first_frame.shape[0]
     bottom_half = gray_first_frame[height//2:]
     edges = cv.Canny(bottom_half, 35, 100)
@@ -24,13 +26,10 @@ def crop_to_piano(frames, gray_first_frame):
     if top_line_y is None:
         print("Cannot find piano")
         return []
-    else:
-        for i in range(len(frames)):
-            frames[i] = frames[i][top_line_y + height//2:]
     
     gray_first_frame = gray_first_frame[top_line_y + height//2:]
 
-    return (gray_first_frame, frames)
+    return (gray_first_frame, top_line_y + height//2)
 
 def locate_keys(gray_frame, hsv_frame):  
     boundaries = find_key_boundaries(gray_frame)
@@ -110,24 +109,14 @@ def find_black_keys(frame):
 
     return black_key_rois
 
-def make_note_matrix(frames, key_rois):
-    note_matrix = np.zeros((len(frames), len(key_rois)), dtype=np.uint8)
+def make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois, sat_thresh=30, val_thresh=30):
+    num_frames = end_frame - start_frame + 1
+    note_matrix = np.zeros((num_frames, len(key_rois)), dtype=np.uint8)
+    frame_gen = video_processing.stream_HSV_frames(video_path, crop_line_y, start_frame, end_frame)
 
-    for i, frame in enumerate(frames):
+    for i, frame in enumerate(frame_gen):
         for j, key in enumerate(key_rois):
-            x1, x2, y1, y2 = key['roi']
-            new_intensity = cv.mean(frame[y1:y2, x1:x2])[0]
-            if abs(new_intensity - key['intensity']) > 40:
-                note_matrix[i, j] = 1
-
-    return note_matrix
-
-def make_note_matrix(frames, key_rois, sat_thresh=30, val_thresh=30):
-    note_matrix = np.zeros((len(frames), len(key_rois)), dtype=np.uint8)
-
-    for i, frame in enumerate(frames):
-        for j, key in enumerate(key_rois):
-            x1, x2, y1, y2 = key['roi']
+            x1, x2, y1, y2 = key["roi"]
             roi = frame[y1:y2, x1:x2]
             h, s, v, _ = cv.mean(roi)
 
