@@ -88,38 +88,3 @@ def get_first_frame(video_path, start_frame, downscale_factor = 0.5):
     hsv_blurred = cv.GaussianBlur(cv.cvtColor(resized, cv.COLOR_BGR2HSV), (5,5), 0)
 
     return (gray_blurred, hsv_blurred)
-
-def extract_frames(file_path, downscale_factor = 0.5):
-    frames = []
-    cap = cv.VideoCapture(file_path)
-
-    if not cap.isOpened():
-        print(f"Error: Cannot open video file {file_path}")
-        return frames 
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        
-        width = int(frame.shape[1] * downscale_factor)
-        height = int(frame.shape[0] * downscale_factor)
-        
-        resized = cv.resize(frame, (width, height), interpolation=cv.INTER_AREA)
-        blurred = cv.GaussianBlur(resized, (5,5), 0) # experiment with blur
-
-        frames.append(blurred)
-
-    cap.release()
-    return frames
-
-def keep_section_frames(frames, start, end, fps):
-    start_frame = int(max(0, fps * start))
-    end_frame = int(min(len(frames), fps * end))
-    return frames[start_frame:end_frame]
-
-def to_HSV(frames):
-    for i in range(len(frames)):
-        frames[i] = cv.cvtColor(frames[i], cv.COLOR_BGR2HSV)
-    
-    return frames

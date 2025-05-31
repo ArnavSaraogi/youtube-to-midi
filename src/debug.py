@@ -59,9 +59,9 @@ def visualize_note_matrix(video_path, crop_line_y, start_frame, end_frame, note_
             pressed = note_matrix[frame_index, j]
             if pressed:
                 if hand_assignments[(frame_index, j)] == "left":
-                    cv.rectangle(resized, (x1, y1), (x2, y2), (0, 255, 0), 1)
+                    cv.rectangle(resized, (x1, y1), (x2, y2), (0, 255, 0), 1) # left hand is green rectangles, right is red
                 else:
-                    cv.rectangle(resized, (x1, y1), (x2, y2), (255, 0, 0), 1)
+                    cv.rectangle(resized, (x1, y1), (x2, y2), (0, 0, 255), 1)
 
         cv.putText(resized, f"Frame {frame_index + start_frame}", (10, 20),
                    cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
