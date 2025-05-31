@@ -110,7 +110,7 @@ def find_black_keys(frame):
 
     return black_key_rois
 
-def make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois, sat_thresh=30, val_thresh=30):
+def make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois, sat_thresh=50, val_thresh=100):
     num_frames = end_frame - start_frame + 1
     note_matrix = np.zeros((num_frames, len(key_rois)), dtype=np.uint8)
     frame_gen = video_processing.stream_HSV_frames(video_path, crop_line_y, start_frame, end_frame)

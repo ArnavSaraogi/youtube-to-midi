@@ -1,8 +1,9 @@
 import pretty_midi
 
 # puts events in format (note, start, duration)
-def matrix_to_events(note_matrix, fps):
-    events = []
+def matrix_to_events(note_matrix, hand_assignments, fps):
+    events_right_hand = []
+    events_left_hand = []
     active_notes = {}
 
     for frame, keys in enumerate(note_matrix):
@@ -14,28 +15,50 @@ def matrix_to_events(note_matrix, fps):
                 start_frame = active_notes.pop(pitch)
                 start_time = start_frame / fps
                 end_time = frame / fps
-                events.append((pitch + 21, start_time, end_time)) # +21 bc A0 on piano is MIDI #21
+                if hand_assignments[(start_frame, pitch)] == "left":
+                    events_left_hand.append((pitch + 21, start_time, end_time)) # +21 bc A0 on piano is MIDI #21
+                else:
+                    events_right_hand.append((pitch + 21, start_time, end_time))
     
     for pitch, start_frame in active_notes.items():
         start_time = start_frame / fps
         end_time = len(note_matrix) / fps
-        events.append((pitch + 21, start_time, end_time))
+        if hand_assignments[(start_frame, pitch)] == "left":
+            events_left_hand.append((pitch + 21, start_time, end_time))
+        else:
+            events_right_hand.append((pitch + 21, start_time, end_time))
     
-    return events
+    return (events_left_hand, events_right_hand)
 
-def generate_midi(events, output_path="output.mid", velocity=80):
+def generate_midi(events_left_hand, events_right_hand, output_path="output.mid", velocity=80):
     pm = pretty_midi.PrettyMIDI()
-    instrument = pretty_midi.Instrument(program=0)
+    
+    left_hand = pretty_midi.Instrument(program=0, name="Left Hand")
+    right_hand = pretty_midi.Instrument(program=0, name="Right Hand")
 
-    for pitch, start, end in events:
+    for pitch, start, end in events_left_hand:
         note = pretty_midi.Note(
             velocity=velocity,
             pitch=pitch,
             start=start,
             end=end
         )
-        instrument.notes.append(note)
+        left_hand.notes.append(note)
     
-    pm.instruments.append(instrument)
+    for pitch, start, end in events_right_hand:
+        note = pretty_midi.Note(
+            velocity=velocity,
+            pitch=pitch,
+            start=start,
+            end=end
+        )
+        right_hand.notes.append(note) 
+    
+    left_hand.notes.sort(key=lambda note: note.start)
+    right_hand.notes.sort(key=lambda note: note.start)
+
+    pm.instruments.append(left_hand)
+    pm.instruments.append(right_hand)
+
     pm.write(output_path)
     print(f"MIDI saved to {output_path}")

@@ -25,6 +25,7 @@ fps, total_frames = video_processing.get_frame_info(video_path, duration)
 start_frame, end_frame = video_processing.get_start_and_end_frames(fps, total_frames, start, end)
 gray_first_frame, hsv_first_frame = video_processing.get_first_frame(video_path, start_frame)
 
+#piano analysis
 gray_first_frame, crop_line_y = piano_analysis.crop_to_piano(gray_first_frame)
 hsv_first_frame = hsv_first_frame[crop_line_y:]
 key_rois = piano_analysis.locate_keys(gray_first_frame, hsv_first_frame)
@@ -43,8 +44,6 @@ debug.visualize_note_matrix(
     hand_assignments=hand_assignments
 )
 
-"""
 # sheet music engraving
-events = sheet_music.matrix_to_events(note_matrix, fps)
-sheet_music.generate_midi(events)
-"""
+events_left_hand, events_right_hand = sheet_music.matrix_to_events(note_matrix, hand_assignments, fps)
+sheet_music.generate_midi(events_left_hand, events_right_hand)
