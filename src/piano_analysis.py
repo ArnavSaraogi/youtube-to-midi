@@ -3,6 +3,7 @@ import debug
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 
 def crop_to_piano(gray_first_frame):
     height = gray_first_frame.shape[0]
@@ -114,6 +115,7 @@ def make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois, 
     note_matrix = np.zeros((num_frames, len(key_rois)), dtype=np.uint8)
     frame_gen = video_processing.stream_HSV_frames(video_path, crop_line_y, start_frame, end_frame)
 
+    pressed_colors = {}
     for i, frame in enumerate(frame_gen):
         for j, key in enumerate(key_rois):
             x1, x2, y1, y2 = key["roi"]
@@ -123,8 +125,41 @@ def make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois, 
             if key["color"] == "white":
                 if abs(s - key["saturation"]) > sat_thresh:
                     note_matrix[i, j] = 1
+                    pressed_colors[(i, j)] = {"hue": int(round(h)), "x": (x1 + x2) // 2}
             else:
                 if abs(v - key["value"]) > val_thresh:
                     note_matrix[i, j] = 1
+                    pressed_colors[(i, j)] = {"hue": int(round(h)), "x": (x1 + x2) // 2}
 
-    return note_matrix
+    return (note_matrix, pressed_colors)
+
+def get_hands(pressed_colors):
+    hues = []
+    xs = []
+    frame_key_tuples = []
+
+    for frame_key_tuple, data in pressed_colors.items():
+        hues.append(data["hue"])
+        xs.append(data["x"])
+        frame_key_tuples.append(frame_key_tuple)
+    
+    theta = 2 * np.pi * np.array(hues) / 180
+    hue_cartesian = np.column_stack((np.cos(theta), np.sin(theta)))
+
+    labels = KMeans(n_clusters=2, random_state=42).fit_predict(hue_cartesian)
+
+    cluster_x_avgs = []
+    for cluster_id in range(2):
+        cluster_xs = [xs[i] for i, label in enumerate(labels) if label == cluster_id]
+        cluster_x_avgs.append(np.mean(cluster_xs))
+    
+    left_cluster = np.argmin(cluster_x_avgs)
+
+    hand_assignments = {}
+    for i, label in enumerate(labels):
+        if label == left_cluster:
+            hand_assignments[frame_key_tuples[i]] = "left"
+        else:
+            hand_assignments[frame_key_tuples[i]] = "right"
+
+    return hand_assignments

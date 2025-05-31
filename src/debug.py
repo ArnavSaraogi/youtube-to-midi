@@ -32,8 +32,7 @@ def check_key_order(key_rois):
                 passed = False
     print(passed)
 
-
-def visualize_note_matrix(video_path, crop_line_y, start_frame, end_frame, note_matrix, key_rois, downscale_factor=0.5):
+def visualize_note_matrix(video_path, crop_line_y, start_frame, end_frame, note_matrix, key_rois, hand_assignments, downscale_factor=0.5):
     cap = cv.VideoCapture(video_path)
     if not cap.isOpened():
         print(f"Error: Cannot open video {video_path}")
@@ -59,13 +58,16 @@ def visualize_note_matrix(video_path, crop_line_y, start_frame, end_frame, note_
             x1, x2, y1, y2 = key["roi"]
             pressed = note_matrix[frame_index, j]
             if pressed:
-                cv.rectangle(resized, (x1, y1), (x2, y2), (0, 255, 0), 1)
+                if hand_assignments[(frame_index, j)] == "left":
+                    cv.rectangle(resized, (x1, y1), (x2, y2), (0, 255, 0), 1)
+                else:
+                    cv.rectangle(resized, (x1, y1), (x2, y2), (255, 0, 0), 1)
 
         cv.putText(resized, f"Frame {frame_index + start_frame}", (10, 20),
-                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
 
         cv.imshow("Note Matrix Visualization", resized)
-        key = cv.waitKey(30)
+        key = cv.waitKey(5)
         if key == ord('q'):
             break
 

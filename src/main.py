@@ -29,7 +29,9 @@ gray_first_frame, crop_line_y = piano_analysis.crop_to_piano(gray_first_frame)
 hsv_first_frame = hsv_first_frame[crop_line_y:]
 key_rois = piano_analysis.locate_keys(gray_first_frame, hsv_first_frame)
 
-note_matrix = piano_analysis.make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois)
+note_matrix, pressed_colors = piano_analysis.make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois)
+print("machine: learning...")
+hand_assignments = piano_analysis.get_hands(pressed_colors)
 
 debug.visualize_note_matrix(
     video_path=video_path,
@@ -37,27 +39,11 @@ debug.visualize_note_matrix(
     start_frame=start_frame,
     end_frame=end_frame,
     note_matrix=note_matrix,
-    key_rois=key_rois
+    key_rois=key_rois,
+    hand_assignments=hand_assignments
 )
 
-#frame_gen = video_processing.stream_HSV_frames(video_path)
-
-
 """
-frames = video_processing.extract_frames(output_path)
-fps = video_processing.get_fps(frames, duration)
-frames = video_processing.keep_section_frames(frames, start, end, fps)
-gray_first_frame = cv.cvtColor(frames[0], cv.COLOR_BGR2GRAY)
-frames = video_processing.to_HSV(frames)
-
-# piano analysis
-gray_first_frame, frames = piano_analysis.crop_to_piano(frames, gray_first_frame)
-key_rois = piano_analysis.locate_keys(gray_first_frame, frames[0])
-note_matrix = piano_analysis.make_note_matrix(frames, key_rois)
-
-debug.play_press_detection(frames, key_rois, note_matrix)
-
-
 # sheet music engraving
 events = sheet_music.matrix_to_events(note_matrix, fps)
 sheet_music.generate_midi(events)
