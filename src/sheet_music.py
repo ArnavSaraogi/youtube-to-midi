@@ -61,4 +61,3 @@ def generate_midi(events_left_hand, events_right_hand, output_path="output.mid",
     pm.instruments.append(right_hand)
 
     pm.write(output_path)
-    print(f"MIDI saved to {output_path}")
