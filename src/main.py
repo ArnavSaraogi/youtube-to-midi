@@ -2,8 +2,6 @@ import video_processing
 import piano_analysis
 import debug
 import sheet_music
-import cv2 as cv
-import numpy as np
 
 song = 'la la'
 url = ''
