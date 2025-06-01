@@ -84,6 +84,7 @@ def generate_midi(events_left_hand, events_right_hand, bpm=120, velocity=80, out
     mid.save(output_path)
     return output_path
 
+# WORK IN PROGRESS
 def midi_to_sheet(midi_path="output.mid", key_signature=None, time_signature="4/4", output_path="output.musicxml"):
     score = music21.converter.parse(midi_path)
     grand_score = music21.stream.Score()

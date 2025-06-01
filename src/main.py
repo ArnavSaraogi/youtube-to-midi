@@ -34,17 +34,6 @@ note_matrix, pressed_colors = piano_analysis.make_note_matrix(video_path, crop_l
 print("machine: learning...")
 hand_assignments = piano_analysis.get_hands(pressed_colors)
 
-"""debug.visualize_note_matrix(
-    video_path=video_path,
-    crop_line_y=crop_line_y,
-    start_frame=start_frame,
-    end_frame=end_frame,
-    note_matrix=note_matrix,
-    key_rois=key_rois,
-    hand_assignments=hand_assignments
-)"""
-
 # sheet music engraving
 events_left_hand, events_right_hand = sheet_music.matrix_to_events(note_matrix, hand_assignments, fps)
 midi_path = sheet_music.generate_midi(events_left_hand=events_left_hand, events_right_hand=events_right_hand)
-sheet_music.midi_to_sheet(midi_path=midi_path, time_signature="3/4")
