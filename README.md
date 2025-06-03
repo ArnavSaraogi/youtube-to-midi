@@ -2,4 +2,4 @@
 
 (WIP)
 
-Generates MIDI files for Synesthesia-style piano tutorial Youtube videos.
+Generates MIDI files for Synesthesia-style piano tutorial Youtube videos using OpenCV.
