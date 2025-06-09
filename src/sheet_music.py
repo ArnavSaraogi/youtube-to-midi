@@ -84,53 +84,56 @@ def generate_midi(events_left_hand, events_right_hand, bpm=120, velocity=80, out
     mid.save(output_path)
     return output_path
 
-# WORK IN PROGRESS
 def midi_to_sheet(midi_path="output.mid", key_signature=None, time_signature="4/4", output_path="output.musicxml"):
+    """Simple, reliable MIDI to sheet music converter"""
     score = music21.converter.parse(midi_path)
-    grand_score = music21.stream.Score()
-
+    
     if len(score.parts) < 2:
         raise ValueError("MIDI file must have at least two parts (left and right hand).")
 
-    left_notes = score.parts[0].flatten().notes
-    right_notes = score.parts[1].flatten().notes
-
-    if key_signature is None:
-        key = score.analyze('key')
-        key_signature = key.sharps
+    # Get the parts and add proper measures
+    right_hand = score.parts[1].makeMeasures()  
+    left_hand = score.parts[0].makeMeasures()   
     
+    # Analyze key if not provided
+    if key_signature is None:
+        try:
+            key = score.analyze('key')
+            key_signature = key.sharps
+        except:
+            key_signature = 0  # Default to C major if analysis fails
+    
+    # Create key signature and time signature objects
     ks = music21.key.KeySignature(key_signature)
     ts = music21.meter.TimeSignature(time_signature)
-
-    left_hand = music21.stream.Part()
-    right_hand = music21.stream.Part()
-
-    # Insert instruments and clefs into each part at offset 0
+    
+    # Set up right hand part (treble clef)
+    right_hand.insert(0, music21.instrument.Piano())
+    right_hand.insert(0, music21.clef.TrebleClef())
+    right_hand.insert(0, ks)
+    right_hand.insert(0, ts)
+    right_hand.partName = 'Piano Right Hand'
+    
+    # Set up left hand part (bass clef)
     left_hand.insert(0, music21.instrument.Piano())
     left_hand.insert(0, music21.clef.BassClef())
     left_hand.insert(0, ks)
     left_hand.insert(0, ts)
-
-    right_hand.insert(0, music21.instrument.Piano())
-    right_hand.insert(0,music21.clef.TrebleClef())
-    right_hand.insert(0, ks)
-    right_hand.insert(0, ts)
-
-    for n in left_notes:
-        left_hand.append(n)
-    for n in right_notes:
-        right_hand.append(n)
-
-    # Add parts to grand score
-    grand_score.insert(0, right_hand)
-    grand_score.insert(0, left_hand)
+    left_hand.partName = 'Piano Left Hand'
     
-    # Add brace to group both staves
-    grand_score.insert(0, music21.layout.StaffGroup(
-        [left_hand, right_hand],
-        name='Piano',
-        abbreviation='Pno.',
-        symbol='brace'
-    ))
-
-    grand_score.write('musicxml', output_path)
+    # Create new score
+    piano_score = music21.stream.Score()
+    
+    # Add metadata
+    piano_score.insert(0, music21.metadata.Metadata())
+    piano_score.metadata.title = 'Piano Score'
+    piano_score.metadata.composer = 'Generated from MIDI'
+    
+    # Add parts to score (right hand first, then left hand)
+    piano_score.append(right_hand)
+    piano_score.append(left_hand)
+    
+    # Write to MusicXML
+    piano_score.write('musicxml', fp=output_path)
+    print(f"Sheet music saved to {output_path}")
+    return piano_score
