@@ -4,7 +4,7 @@ import debug
 import sheet_music
 import time
 
-song = 'halo'
+song = 'la la'
 url = ''
 start = 0
 end = 0
@@ -42,7 +42,7 @@ key_rois = piano_analysis.locate_keys(gray_first_frame, hsv_first_frame, startin
 
 start = time.time()
 
-note_matrix, pressed_colors = piano_analysis.make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois)
+pressed_colors = piano_analysis.get_pressed_colors(video_path, crop_line_y, start_frame, end_frame, key_rois)
 
 end = time.time()
 print(f"Loop time: {end - start:.2f} sec")
@@ -51,6 +51,7 @@ print("machine: learning...")
 hand_assignments = piano_analysis.get_hands(pressed_colors)
 
 # sheet music engraving
-events_left_hand, events_right_hand = sheet_music.matrix_to_events(note_matrix, hand_assignments, fps)
+events_left_hand, events_right_hand = sheet_music.hand_assignments_to_events(hand_assignments, fps)
 midi_path = sheet_music.generate_midi(events_left_hand=events_left_hand, events_right_hand=events_right_hand)
+
 #sheet_music.midi_to_sheet(midi_path=midi_path)

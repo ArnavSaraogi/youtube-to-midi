@@ -31,17 +31,14 @@ def stream_HSV_frames(video_path, crop_line_y, start_frame=0, end_frame=None, do
     if not cap.isOpened():
         print(f"Error: Cannot open video file {video_path}")
         return
+    cap.set(cv.CAP_PROP_POS_FRAMES, start_frame)
 
-    frame_index = 0
+    frame_index = start_frame
 
     while True:
         ret, frame = cap.read()
         if not ret:
             break
-        
-        if frame_index < start_frame:
-            frame_index += 1
-            continue
 
         if end_frame is not None and frame_index > end_frame:
             break

@@ -134,11 +134,9 @@ def get_starting_key_pos(starting_key):
 
     return key_to_key_pos[starting_key]
 
-def make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois, sat_thresh=50, val_thresh=100):
+def get_pressed_colors(video_path, crop_line_y, start_frame, end_frame, key_rois, sat_thresh=50, val_thresh=100):
     print(len(key_rois))
     
-    num_frames = end_frame - start_frame + 1
-    note_matrix = np.zeros((num_frames, 88), dtype=np.uint8) # 88 is num of keys in full piano
     frame_gen = video_processing.stream_HSV_frames(video_path, crop_line_y, start_frame, end_frame)
 
     pressed_colors = {}
@@ -150,14 +148,12 @@ def make_note_matrix(video_path, crop_line_y, start_frame, end_frame, key_rois, 
 
             if key["key_color"] == "white":
                 if abs(s - key["saturation"]) > sat_thresh:
-                    note_matrix[i, key["key_pos"]] = 1
                     pressed_colors[(i, key["key_pos"])] = {"hue": int(round(h)), "x": (x1 + x2) // 2}
             else:
                 if abs(v - key["value"]) > val_thresh:
-                    note_matrix[i, key["key_pos"]] = 1
                     pressed_colors[(i, key["key_pos"])] = {"hue": int(round(h)), "x": (x1 + x2) // 2}
 
-    return (note_matrix, pressed_colors)
+    return (pressed_colors)
 
 def get_hands(pressed_colors):
     hues = []

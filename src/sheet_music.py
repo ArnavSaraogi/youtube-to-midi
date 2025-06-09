@@ -5,33 +5,44 @@ import os
 import copy
 
 # puts events in format (note, start, duration)
-def matrix_to_events(note_matrix, hand_assignments, fps):
+def hand_assignments_to_events(hand_assignments, fps):
     events_right_hand = []
     events_left_hand = []
     active_notes = {}
 
-    for frame, keys in enumerate(note_matrix):
-        for pitch, pressed in enumerate(keys):
-            if pressed:
-                if pitch not in active_notes:
-                    active_notes[pitch] = frame
-            elif pitch in active_notes:
-                start_frame = active_notes.pop(pitch)
-                start_time = start_frame / fps
-                end_time = frame / fps
-                if hand_assignments[(start_frame, pitch)] == "left":
-                    events_left_hand.append((pitch + 21, start_time, end_time)) # +21 bc A0 on piano is MIDI #21
-                else:
-                    events_right_hand.append((pitch + 21, start_time, end_time))
-    
-    for pitch, start_frame in active_notes.items():
-        start_time = start_frame / fps
-        end_time = len(note_matrix) / fps
-        if hand_assignments[(start_frame, pitch)] == "left":
-            events_left_hand.append((pitch + 21, start_time, end_time))
+    # Sort by frame number to ensure proper ordering
+    sorted_keys = sorted(hand_assignments.keys())
+
+    for (frame, pitch) in sorted_keys:
+        if pitch not in active_notes:
+            # Note starts
+            active_notes[pitch] = (frame, hand_assignments[(frame, pitch)])
         else:
-            events_right_hand.append((pitch + 21, start_time, end_time))
-    
+            # Note is already active — continue holding
+            pass
+
+        # Check if note ends at the *next* frame by peeking ahead
+        next_frame = frame + 1
+        if (next_frame, pitch) not in hand_assignments:
+            start_frame, hand = active_notes.pop(pitch)
+            start_time = start_frame / fps
+            end_time = next_frame / fps
+            event = (pitch + 21, start_time, end_time)
+            if hand == "left":
+                events_left_hand.append(event)
+            else:
+                events_right_hand.append(event)
+
+    # In case any notes are still active at the end
+    for pitch, (start_frame, hand) in active_notes.items():
+        start_time = start_frame / fps
+        end_time = max(f for f, p in hand_assignments.keys()) / fps
+        event = (pitch + 21, start_time, end_time)
+        if hand == "left":
+            events_left_hand.append(event)
+        else:
+            events_right_hand.append(event)
+
     return (events_left_hand, events_right_hand)
 
 def generate_pretty_midi(events_left_hand, events_right_hand, velocity):
