@@ -1,8 +1,6 @@
 import video_processing
-import debug
 import cv2 as cv
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
 def crop_to_piano(gray_first_frame):

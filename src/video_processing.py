@@ -2,15 +2,14 @@ import os
 import yt_dlp
 import cv2 as cv
 
-def download_video(url): 
+def download_video(url, output): 
     with yt_dlp.YoutubeDL({}) as ydl:
         info = ydl.extract_info(url, download=False)
 
-    title = (info.get('title', 'no_title')).replace(" ", "_")[:20]
     duration = info.get('duration', 0)
 
     os.makedirs("./downloads", exist_ok=True)
-    video_path = "./downloads/" + title + ".mp4"
+    video_path = "./downloads/" + output + ".mp4"
 
     if os.path.exists(video_path):
         return (video_path, duration)
