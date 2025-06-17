@@ -13,5 +13,6 @@ scipy==1.15.3
 setuptools==80.9.0
 six==1.17.0
 threadpoolctl==3.6.0
+tqdm==4.67.1
 urllib3==2.4.0
 yt-dlp==2025.6.9

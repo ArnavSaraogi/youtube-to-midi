@@ -2,25 +2,24 @@ import os
 import yt_dlp
 import cv2 as cv
 
-def download_video(url, output): 
-    with yt_dlp.YoutubeDL({}) as ydl:
-        info = ydl.extract_info(url, download=False)
-
-    duration = info.get('duration', 0)
-
+def download_video(url, output):     
     os.makedirs("tmp", exist_ok=True)
     video_path = "./tmp/" + output + ".mp4"
-    
-    if os.path.exists(video_path):
-        return (video_path, duration)
 
     ydl_opts = {
         'quiet': True,
-        'no_warnings': True,
         'format': 'bestvideo[ext=mp4]',
         'outtmpl': video_path,
         'merge_output_format': 'mp4',
     }
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+
+    duration = info.get('duration', 0)
+    
+    if os.path.exists(video_path):
+        return (video_path, duration)
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])

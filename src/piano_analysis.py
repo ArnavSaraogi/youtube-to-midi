@@ -2,6 +2,7 @@ from . import video_processing
 import cv2 as cv
 import numpy as np
 from sklearn.cluster import KMeans
+from tqdm import tqdm
 
 def crop_to_piano(gray_first_frame):
     height = gray_first_frame.shape[0]
@@ -132,13 +133,11 @@ def get_starting_key_pos(starting_key):
 
     return key_to_key_pos[starting_key]
 
-def get_pressed_colors(video_path, crop_line_y, start_frame, end_frame, key_rois, sat_thresh=50, val_thresh=100):
-    print(f"{len(key_rois)} keys detected")
-    
+def get_pressed_colors(video_path, crop_line_y, start_frame, end_frame, key_rois, sat_thresh=50, val_thresh=100):    
     frame_gen = video_processing.stream_HSV_frames(video_path, crop_line_y, start_frame, end_frame)
 
     pressed_colors = {}
-    for i, frame in enumerate(frame_gen):
+    for i, frame in enumerate(tqdm(frame_gen, total=end_frame-start_frame+1)):
         for key in key_rois:
             x1, x2, y1, y2 = key["roi"]
             roi = frame[y1:y2, x1:x2]
