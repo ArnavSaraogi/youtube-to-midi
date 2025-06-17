@@ -8,13 +8,14 @@ def download_video(url, output):
 
     duration = info.get('duration', 0)
 
-    os.makedirs("./downloads", exist_ok=True)
-    video_path = "./downloads/" + output + ".mp4"
-
+    os.makedirs("tmp", exist_ok=True)
+    video_path = "./tmp/" + output + ".mp4"
+    
     if os.path.exists(video_path):
         return (video_path, duration)
 
     ydl_opts = {
+        'quiet': True,
         'format': 'bestvideo[ext=mp4]',
         'outtmpl': video_path,
         'merge_output_format': 'mp4',

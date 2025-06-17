@@ -1,5 +1,6 @@
 import argparse
 import re
+import os
 from src import video_processing, piano_analysis, sheet_music
 
 def parse_url_str(url):
@@ -52,6 +53,7 @@ def main(url, start, end, starting_key, output):
     key_rois = piano_analysis.locate_keys(gray_first_frame, hsv_first_frame, starting_key) #{roi: (x1, x2, y1, y2), key_color: "black" or "white", index: , hue: , saturation: , value: }
     pressed_colors = piano_analysis.get_pressed_colors(video_path, crop_line_y, start_frame, end_frame, key_rois)
     hand_assignments = piano_analysis.get_hands(pressed_colors)
+    os.remove(video_path)
 
     # sheet music engraving
     print("engraving sheet music...")

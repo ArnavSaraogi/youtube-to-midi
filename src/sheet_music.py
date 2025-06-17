@@ -72,7 +72,7 @@ def generate_pretty_midi(events_left_hand, events_right_hand, velocity):
 
 def generate_midi(events_left_hand, events_right_hand, bpm=120, velocity=80, output="output"):
     pm = generate_pretty_midi(events_left_hand, events_right_hand, velocity)
-    temp_path = "temp.mid"
+    temp_path = "./tmp/temp.mid"
     pm.write(temp_path)
     
     mid = mido.MidiFile(temp_path)
@@ -85,5 +85,7 @@ def generate_midi(events_left_hand, events_right_hand, bpm=120, velocity=80, out
     mid.tracks.insert(0, tempo_track)
 
     os.remove(temp_path)
-    mid.save(output + ".mid")
-    return output + ".mid"
+
+    os.makedirs("outputs", exist_ok=True)
+    mid.save("./outputs/" + output + ".mid")
+    return "./outputs/" + output + ".mid"
