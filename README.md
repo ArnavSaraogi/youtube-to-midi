@@ -2,7 +2,7 @@
 Generate MIDI files from Synesthesia-style Youtube videos. 
 
 ## Prerequisites
-Just one! You need at least Python 3.6. Use the command `python3 --version` in terminal to check your version
+Just one! You need at least Python 3.6. Use the command `python3 --version` in terminal to check your version.
 
 ## Download and Setup
 Paste the commands line by line into terminal:
@@ -38,7 +38,7 @@ You'll then be prompted to enter:
 
 ### With flags
 You can also add flags to the command to run the program immediately:
-* -u or --url: the url of the video. Make sure the url here is in double quotes
+* -u or --url: the url of the video
 * -r or --range: the time range when the piano is in frame (the first argument is the starting time, second is the ending time)
 * -s or --start_key: the leftmost key visible in frame
 * -o or --output: The name the output MIDI should have
@@ -47,4 +47,9 @@ For example:
 ```bash
 python yt-to-midi.py -u "https://www.youtube.com/watch?v=D-X1CwyQLYo" -r 0:02 1:54 -s A0 -o la_la_land
 ```
- Note that all flags must be included for the program to run.
+
+### Important Notes
+1. When running the program with flags, make sure that the url is in double quotes
+2. Either all or none of the flags have to be included for the program to run
+3. Use this image as a refrence for what key label to enter for the staring key:
+[![piano-key-labels.png](https://i.postimg.cc/529CtthR/piano-key-labels.png)](https://postimg.cc/RN8FsvV7)
