@@ -39,14 +39,12 @@ def parse_args():
     return parser.parse_args()
 
 def main(url, start, end, starting_key, output):
-    # video processing
     print("processing video...")
     video_path, duration = video_processing.download_video(url, output)
     fps, total_frames = video_processing.get_frame_info(video_path, duration)
     start_frame, end_frame = video_processing.get_start_and_end_frames(fps, total_frames, start, end)
     gray_first_frame, hsv_first_frame = video_processing.get_first_frame(video_path, start_frame)
 
-    # piano analysis
     print("analyzing piano...")
     gray_first_frame, crop_line_y = piano_analysis.crop_to_piano(gray_first_frame)
     hsv_first_frame = hsv_first_frame[crop_line_y:]
@@ -55,8 +53,7 @@ def main(url, start, end, starting_key, output):
     hand_assignments = piano_analysis.get_hands(pressed_colors)
     os.remove(video_path)
 
-    # sheet music engraving
-    print("engraving sheet music...")
+    print("generating MIDI...")
     events_left_hand, events_right_hand = sheet_music.hand_assignments_to_events(hand_assignments, fps)
     midi_path = sheet_music.generate_midi(events_left_hand=events_left_hand, events_right_hand=events_right_hand, output=output)
     print(f"output at {midi_path}")
