@@ -133,7 +133,7 @@ def get_starting_key_pos(starting_key):
     return key_to_key_pos[starting_key]
 
 def get_pressed_colors(video_path, crop_line_y, start_frame, end_frame, key_rois, sat_thresh=50, val_thresh=100):
-    print(len(key_rois))
+    print(f"{len(key_rois)} keys detected")
     
     frame_gen = video_processing.stream_HSV_frames(video_path, crop_line_y, start_frame, end_frame)
 

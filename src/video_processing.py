@@ -16,6 +16,7 @@ def download_video(url, output):
 
     ydl_opts = {
         'quiet': True,
+        'no_warnings': True,
         'format': 'bestvideo[ext=mp4]',
         'outtmpl': video_path,
         'merge_output_format': 'mp4',

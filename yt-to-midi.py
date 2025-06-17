@@ -1,42 +1,7 @@
 import argparse
-import re
 import os
-from src import video_processing, piano_analysis, sheet_music
-
-def parse_url_str(url):
-    pattern = r'^https?://(www\.)?(youtube\.com/watch\?v=|youtu\.be/|m\.youtube\.com/watch\?v=)[\w\-_]{11}'
-    if not re.match(pattern, url):
-        raise argparse.ArgumentTypeError('Invalid URL format — must be a YouTube video link.')
-    return url
-
-def parse_time_str(s):
-    """Parses mm:ss string to seconds"""
-    try:
-        minutes, seconds = map(int, s.strip().split(':'))
-        return minutes * 60 + seconds
-    except:
-        raise argparse.ArgumentTypeError(f'Invalid time format: {s}. Use mm:ss')
-
-def parse_start_key_str(key):
-    """Validates if input is valid piano key name"""
-    if re.fullmatch(r"^[A-Ga-g]#?\d$", key) is None:
-        raise argparse.ArgumentTypeError(f'Invalid key: {key} — use format like C4 or F#2')
-    return key.upper()
-
-def strip_mid_extension(path):
-    """Strips trailing .mid from the output filename if present"""
-    return path[:-4] if path.lower().endswith('.mid') else path
-
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description='Extract MIDI from piano YouTube videos',
-        epilog='Example: %(prog)s -u "https://www.youtube.com/watch?v=D-X1CwyQLYo" -r 0:02 1:54 -s A0 -o song.mid'
-    )
-    parser.add_argument('-u', '--url', type=parse_url_str, required=True, help='url of youtube video to create MIDI from')
-    parser.add_argument('-r', '--range', type=parse_time_str, required=True, nargs=2, help='start and end timestamps in mm:ss format')
-    parser.add_argument('-s', '--start_key', type=parse_start_key_str, required=True, help='the leftmost key visible in frame (ex. B1)')
-    parser.add_argument('-o', '--output', type=str, required=True, help='name of the output file (ex. midi_file or midi_file.mid)')
-    return parser.parse_args()
+import sys
+from src import video_processing, piano_analysis, sheet_music, arg_validation
 
 def main(url, start, end, starting_key, output):
     print("processing video...")
@@ -59,6 +24,29 @@ def main(url, start, end, starting_key, output):
     print(f"output at {midi_path}")
 
 if __name__ == '__main__':
-    args = parse_args()
-    output = strip_mid_extension(args.output)
-    main(args.url, args.range[0], args.range[1], args.start_key, output)
+    if len(sys.argv) == 1:
+        def prompt_with_validation(prompt, parser_func):
+            while True:
+                val = input(prompt).strip()
+                try:
+                    return parser_func(val)
+                except argparse.ArgumentTypeError as e:
+                    print(f"Error: {e}")
+
+        url = prompt_with_validation("Enter YouTube URL: ", arg_validation.parse_url_str)
+        start = prompt_with_validation("Enter start time (mm:ss): ", arg_validation.parse_time_str)
+        end = prompt_with_validation("Enter end time (mm:ss): ", arg_validation.parse_time_str)
+        arg_validation.check_times(start, end)
+        start_key = prompt_with_validation("Enter leftmost visible key (e.g., A0): ", arg_validation.parse_start_key_str)
+        output = input("Enter output filename (e.g., song.mid): ").strip()
+        output = arg_validation.strip_mid_extension(output)
+
+    else:
+        args = arg_validation.parse_args()
+        url = args.url
+        start, end = args.range
+        arg_validation.check_times(start, end)
+        start_key = args.start_key
+        output = arg_validation.strip_mid_extension(args.output)
+
+    main(url, start, end, start_key, output)
