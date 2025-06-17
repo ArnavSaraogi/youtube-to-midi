@@ -1,5 +1,5 @@
 import warnings
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("ignore") # for the package depriciation in pretty_midi
 
 import pretty_midi
 import mido
