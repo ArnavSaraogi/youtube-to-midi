@@ -5,14 +5,14 @@ Generate MIDI files from [Synesthesia-style](https://www.youtube.com/watch?v=QCN
 This project uses OpenCV to identify pressed keys in Youtube piano tutorials and stores the note data in a MIDI file. Follow the instructions in [RUN.md](RUN.md) to download and run the code.
 
 ## Motivation and MIDI Usage
-Sheet music and MIDIs for piano tutorials on Youtube are often not free, and transcribing by hand takes time. Furthermore, methods for converting audio to MIDI can be unreliable. By relying on video, fast, free, and accurate MIDIs can be generated.
+Sheet music and MIDI files for piano tutorials on Youtube are often not free, and transcribing by hand takes time. Furthermore, methods for converting audio to MIDI can be unreliable. By relying on video rather than audio, this project enables fast, free, and accurate MIDI generation.
 
 MIDI files can be used for creating sheet music -- just import the MIDI into MuseScore (or similar software). It can also be uploaded to Synesthesia for learning and practicing songs.
 
 ## Technical Details
 1. OpenCV's Canny edge detection and thesholding methods are used to identify the piano's white and black keys in the video
 2. The video is processed in the HSV colorspace
-    * White key presses are determined by comparing a key's saturation to its baseline
+    * White key presses are determined by comparing a key's saturation to its baseline (its value in the first frame)
     * Black key presses are determined by comparing a key's value to its baseline
 3. K-means clustering on hue is used to determine which hand played a note
 4. The event information about notes is turned into a MIDI file with Pretty Midi
