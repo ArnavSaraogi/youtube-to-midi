@@ -1,55 +1,28 @@
 # youtube-to-midi
 Generate MIDI files from Synesthesia-style Youtube videos. 
 
-## Prerequisites
-Just one! You need at least Python 3.6. Use the command `python3 --version` in terminal to check your version.
+## Overview
+This project uses OpenCV to identify pressed keys in Youtube piano tutorials and stores the note data in a MIDI file. Follow the instructions in [RUN.md](RUN.md) to download and run the code.
 
-## Download and Setup
-Paste the commands line by line into terminal:
+## Motivation and MIDI Usage
+Sheet music and MIDIs for piano tutorials on Youtube are often not free, and transcribing by hand takes time. Furthermore, methods for converting audio to MIDI can be unreliable. By relying on video, fast, free, and accurate MIDIs can be generated.
 
-1. Clone the repository
-```bash
-git clone https://github.com/ArnavSaraogi/youtube-to-midi
-cd youtube-to-midi 
-```
+MIDI files can be used for creating sheet music -- just import the MIDI into MuseScore (or similar software). It can also be uploaded to Synesthesia for learning and practicing songs.
 
-2. Set up virtual environment and install requirements
-```bash
-python3 -m venv venv
-source venv/bin/activate # on Windows, the command is venv\Scripts\activate
-```
+## Technical Details
+1. OpenCV's Canny edge detection and thesholding methods are used to identify the piano's white and black keys in the video
+2. The video is processed in the HSV colorspace
+    * White key presses are determined by comparing a key's saturation to its baseline
+    * Black key presses are determined by comparing a key's value to its baseline
+3. K-means clustering on hue is used to determine which hand played a note
+4. The event information about notes is turned into a MIDI file with Pretty Midi
 
-3. Install requirements
-```bash
-pip install -r requirements.txt
-```
+## To-Do
+- [ ] Support tutorials only using one hand (ie, one color)
+- [ ] Deal with "fadeaway" effect on Sheet Music Boss tutorials
+- [ ] Identify when piano appears in frame so start and end times not required
+- [ ] Move to processing the video without downloading it
+- [ ] Optimize key press detection loop
 
-## Running the Program
-### With no flags
-Make sure you are in the youtube-to-midi folder in your terminal. Then, you can run the program with
-```bash
-python yt-to-midi.py
-```
-You'll then be prompted to enter:
-1. The youtube URL
-2. Starting and ending times where the piano is in frame (in mm:ss format)
-3. The leftmost key visible in frame (like A0, C#1, G2)
-4. The name the output MIDI should have
-
-### With flags
-You can also add flags to the command to run the program immediately:
-* -u or --url: the url of the video
-* -r or --range: the time range when the piano is in frame (the first argument is the starting time, second is the ending time)
-* -s or --start_key: the leftmost key visible in frame
-* -o or --output: The name the output MIDI should have
-
-For example:
-```bash
-python yt-to-midi.py -u "https://www.youtube.com/watch?v=D-X1CwyQLYo" -r 0:02 1:54 -s A0 -o la_la_land
-```
-
-### Important Notes
-1. When running the program with flags, make sure that the url is in double quotes
-2. Either all or none of the flags have to be included for the program to run
-3. Use this image as a refrence for what key label to enter for the staring key:
-[![piano-key-labels.png](https://i.postimg.cc/529CtthR/piano-key-labels.png)](https://postimg.cc/RN8FsvV7)
+## Limitations
+Many of the tutorials on Youtube don't use exact timings when playing notes, so sheet music created using the generated MIDI may appear messy. However, with some manual adjustment in software like MuseScore, quality sheet music can be created.
