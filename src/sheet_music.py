@@ -41,7 +41,7 @@ def hand_assignments_to_events(hand_assignments, fps):
 
     return (events_left_hand, events_right_hand)
 
-def generate_pretty_midi(events_left_hand, events_right_hand, velocity):
+def generate_midi(events_left_hand, events_right_hand, velocity=80, output="output"):
     pm = pretty_midi.PrettyMIDI()
     
     left_hand = pretty_midi.Instrument(program=0, name="Left Hand")
@@ -71,24 +71,6 @@ def generate_pretty_midi(events_left_hand, events_right_hand, velocity):
     pm.instruments.append(right_hand)
     pm.instruments.append(left_hand)
 
-    return pm
-
-def generate_midi(events_left_hand, events_right_hand, bpm=120, velocity=80, output="output"):
-    pm = generate_pretty_midi(events_left_hand, events_right_hand, velocity)
-    temp_path = "./tmp/temp.mid"
-    pm.write(temp_path)
-    
-    mid = mido.MidiFile(temp_path)
-    tempo_track = mido.MidiTrack()
-
-    tempo = mido.bpm2tempo(bpm)
-    tempo_msg = mido.MetaMessage('set_tempo', tempo=tempo, time=0)
-    tempo_track.append(tempo_msg)
-
-    mid.tracks.insert(0, tempo_track)
-
-    os.remove(temp_path)
-
     os.makedirs("outputs", exist_ok=True)
-    mid.save("./outputs/" + output + ".mid")
+    pm.write("./outputs/" + output + ".mid")
     return "./outputs/" + output + ".mid"

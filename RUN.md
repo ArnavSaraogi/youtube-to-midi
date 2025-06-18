@@ -48,5 +48,5 @@ python yt-to-midi.py -u "https://www.youtube.com/watch?v=D-X1CwyQLYo" -r 0:02 1:
 ### Important Notes
 1. When running the program with flags, make sure that the url is in double quotes
 2. Either all or none of the flags have to be included for the program to run
-3. Use this image as a refrence for what key label to enter for the staring key:
+3. Use this image as a reference for what key label to enter for the staring key:
 [![piano-key-labels.png](https://i.postimg.cc/529CtthR/piano-key-labels.png)](https://postimg.cc/RN8FsvV7)
