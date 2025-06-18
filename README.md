@@ -1,5 +1,5 @@
 # youtube-to-midi
-Generate MIDI files from Synesthesia-style Youtube videos. 
+Generate MIDI files from [Synesthesia-style](https://www.youtube.com/watch?v=QCNVEsk3pcw) Youtube videos. 
 
 ## Overview
 This project uses OpenCV to identify pressed keys in Youtube piano tutorials and stores the note data in a MIDI file. Follow the instructions in [RUN.md](RUN.md) to download and run the code.
