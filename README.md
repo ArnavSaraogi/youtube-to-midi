@@ -4,7 +4,7 @@ Generate MIDI files from [Synesthesia-style](https://www.youtube.com/watch?v=QCN
 ## Overview
 This project uses OpenCV to identify pressed keys in Youtube piano tutorials and stores the note data in a MIDI file. Follow the instructions in [RUN.md](RUN.md) to download and run the code.
 
-# Demo
+## Demo (click thumbnail to view in youtube)
 [![Demo Video](https://img.youtube.com/vi/-JE1TyBCnUU/0.jpg)](https://www.youtube.com/watch?v=-JE1TyBCnUU)
 
 ## Motivation and MIDI Usage
