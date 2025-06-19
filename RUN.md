@@ -22,12 +22,14 @@ pip install -r requirements.txt
 ```
 
 ## Running the Program
-### With no flags
-Make sure you are in the youtube-to-midi folder in your terminal. Activate your virtual environment with 
+Make sure you are in the youtube-to-midi folder in your terminal. Activate the virtual environment with 
 ```bash
 source ./venv/bin/activate
 ```
-Then, you can run the program with
+Now, you're ready to run the program.
+
+### Without flags
+You can run the program with
 ```bash
 python yt-to-midi.py
 ```
