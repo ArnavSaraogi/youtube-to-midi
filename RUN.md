@@ -51,5 +51,5 @@ python yt-to-midi.py -u "https://www.youtube.com/watch?v=D-X1CwyQLYo" -r 0:02 1:
 1. The program may take some time to run the first time you use it, but after the .py files are stored in __pycache__ it will be faster
 2. When running the program with flags, make sure that the url is in double quotes
 3. Either all or none of the flags have to be included for the program to run
-4. Use this image as a reference for what key label to enter for the staring key:
+4. Use this image as a reference for what key label to enter for the starting key:
 [![piano-key-labels.png](https://i.postimg.cc/529CtthR/piano-key-labels.png)](https://postimg.cc/RN8FsvV7)
