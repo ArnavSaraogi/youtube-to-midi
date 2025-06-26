@@ -9,10 +9,6 @@ Sheet music and MIDI files for piano tutorials on Youtube are often not free, an
 
 MIDI files can be used for creating sheet music -- just import the MIDI into MuseScore (or similar software). It can also be uploaded to Synesthesia for learning and practicing songs.
 
-## Demo
-Click the thumbnail below to watch a demo on YouTube:
-[![Demo Video](https://img.youtube.com/vi/-JE1TyBCnUU/0.jpg)](https://www.youtube.com/watch?v=-JE1TyBCnUU)
-
 ## Technical Details
 1. OpenCV's Canny edge detection and thresholding methods are used to identify the piano's white and black keys in the video
 2. The video is processed in the HSV colorspace
